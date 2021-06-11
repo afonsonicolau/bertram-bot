@@ -1,7 +1,17 @@
 import discord
 import os
 import re
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
+# Spreadsheet scope and sheet
+scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+credentials = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
+clientsheet = gspread.authorize(credentials)
+sheet = clientsheet.open('Modelos - TNLRP').sheet1
+results = sheet.col_values(4)
+
+# Discord bot client
 client = discord.Client()
 
 @client.event
@@ -20,15 +30,21 @@ async def on_message(message):
 
       # Verify if array has enough indexes
       if len(messagesplited) == 4:
+        checkmodel = False
         botcommand = messagesplited[1]
         steamid = messagesplited[2]
         carmodel = messagesplited[3]
 
-        if re.search('[1-5]:([\a-zA-Z\][0-9]{15})$', steamid):
+        for model in results:
+          if model == carmodel:
+            checkmodel = True
+            break
+
+        if re.search('[1-5]:([\a-zA-Z\][0-9]{15})$', steamid) and checkmodel:
           if botcommand == "darbote":
             await givecar(steamid, carmodel, message)
         else:
-          await embededmessages(message, "Dar um veículo", "Erro", "Alguém inseriu um identificador de um jogador errado, não foi?")
+          await embededmessages(message, "Dar um veículo", "Erro", "O 'steamid' ou o 'veículo' não estão corretos, aprende a escrever.")
       else:
         await embededmessages(message, "Nenhuma", "Erro", "O formato da mensagem deverá ser: @Bertram <ação> <steamid> <objeto/veículo>")
         return
