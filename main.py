@@ -42,7 +42,15 @@ async def on_message(message):
 
         if bot_command == 'darbote' and len(message_splitted) >= 4 and is_manager:
             identifier = message_splitted[2]
+
+            # Parse plate in case one was inputed
             plate = message_splitted[4] if 4 < len(message_splitted) else None
+            special_characters = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
+            if plate is not None and (len(plate) > 8 or special_characters.search(plate) is not None):
+                await messages.embeded_messages(message, "Dar um veículo", "Erro", "A 'matrícula' inserida está um pouco inválida, só um pouco.")
+                return
+
+            # Parse model inputed to get it's name and props
             car_model = None
             models = sheet.col_values(4)
             for model in models:
@@ -55,9 +63,9 @@ async def on_message(message):
             if re.search('[1-5]:([\a-zA-Z\][0-9]{15})$', identifier) and car_model is not None:
                 await vehicles.givecar(identifier, car_name, plate, vehicle_props, message)
             else:
-                await messages.embededmessages(message, "Dar um veículo", "Erro", "O 'identificador' ou o 'veículo' não estão corretos, aprende a escrever.")
+                await messages.embeded_messages(message, "Dar um veículo", "Erro", "O 'identificador' ou o 'veículo' não estão corretos, aprende a escrever.")
         elif bot_command == 'invalid':
-            await messages.embededmessages(message, "Inválida", "Erro", "Acho que se escreveres algo válido funciona.")
+            await messages.embeded_messages(message, "Inválida", "Erro", "Acho que se escreveres algo válido funciona.")
 
 
 client.run(json_files.get_field('token'))
