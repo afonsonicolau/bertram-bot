@@ -40,5 +40,4 @@ def insert_data(insert_query, data):
 
 def close_connection():
     if connection.is_connected():
-        cursor.close()
         connection.close()
