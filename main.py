@@ -1,137 +1,64 @@
 import discord
 import re
-import json
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-import sql
-import string
-import random
-
-# Load JSON Secrets
-secrets = open('secrets.json')
-secretdata = json.load(secrets)
+# Other scripts
+import messages
+import vehicles
+import json_files
 
 # Spreadsheet scope and sheet
 scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
 credentials = ServiceAccountCredentials.from_json_keyfile_dict(
-    secretdata['googlecredentials'], scope)
-clientsheet = gspread.authorize(credentials)
-sheet = clientsheet.open('Modelos - TNLRP').sheet1
+    json_files.get_field('googlecredentials'), scope)
+client_sheets = gspread.authorize(credentials)
+sheet = client_sheets.open('Modelos - TNLRP').sheet1
 
 # Discord bot client
 client = discord.Client()
 
-
+# When Bertram starts
 @client.event
 async def on_ready():
     print('Hello World, I am {0.user}'.format(client))
 
-
+# When chat has a new message
 @client.event
 async def on_message(message):
     # Verifies is message is from Bertram
     if message.author == client.user:
         return
 
+    if not message.channel.id in json_files.get_field('projects.tnlrp.authorized_channels'):
+        return
+
     if message.content.startswith('<@!852648286602919964>') or message.content.startswith('<@852648286602919964>'):
 
-        usermessage = message.content
-        messagesplitted = usermessage.split()
-        is_manager = message.author.id in secretdata['projects']['tnlrp']['managers']
+        user_message = message.content
+        message_splitted = user_message.split()
+        is_manager = message.author.id in json_files.get_field('projects.tnlrp.managers')
 
-        botcommand = messagesplitted[1] if 1 < len(
-            messagesplitted) else 'invalid'
+        bot_command = message_splitted[1] if 1 < len(message_splitted) else 'invalid'
 
-        if botcommand == 'darbote' and len(messagesplitted) >= 4 and is_manager:
-            steamid = messagesplitted[2]
-            plate = messagesplitted[4] if 4 < len(messagesplitted) else None
-            carmodel = None
+        if bot_command == 'darbote' and len(message_splitted) >= 4 and is_manager:
+            identifier = message_splitted[2]
+            plate = message_splitted[4] if 4 < len(message_splitted) else None
+            car_model = None
             models = sheet.col_values(4)
             for model in models:
-                if model == messagesplitted[3]:
-                    carmodel = sheet.find(messagesplitted[3])
-                    carname = sheet.cell(carmodel.row, 2).value
-                    vehicleprops = sheet.cell(carmodel.row, 6).value
+                if model == message_splitted[3]:
+                    car_model = sheet.find(message_splitted[3])
+                    car_name = sheet.cell(car_model.row, 2).value
+                    vehicle_props = sheet.cell(car_model.row, 6).value
                     break
 
-            if re.search('[1-5]:([\a-zA-Z\][0-9]{15})$', steamid) and carmodel is not None:
-                await givecar(steamid, carmodel.value, carname, plate, vehicleprops, message)
+            if re.search('[1-5]:([\a-zA-Z\][0-9]{15})$', identifier) and car_model is not None:
+                await vehicles.givecar(identifier, car_model.value, car_name, plate, vehicle_props, message)
             else:
-                await embededmessages(message, "Dar um veículo", "Erro", "O 'steamid' ou o 'veículo' não estão corretos, aprende a escrever.")
-        elif botcommand == 'invalid':
-            await embededmessages(message, "Inválida", "Erro", "Acho que se escreveres algo válido funciona.")
+                await messages.embededmessages(message, "Dar um veículo", "Erro", "O 'identificador' ou o 'veículo' não estão corretos, aprende a escrever.")
+        elif bot_command == 'invalid':
+            await messages.embededmessages(message, "Inválida", "Erro", "Acho que se escreveres algo válido funciona.")
 
 
-async def givecar(steamid, carmodel, carname, plate, vehicleprops, message):
-    if sql.open_connection():
-        cursor = sql.connect_cursor()
-        cursor.execute(
-            "SELECT * FROM users WHERE identifier = %(identifier)s", {'identifier': steamid})
-        player_data = cursor.fetchone()
-
-        if player_data == None:
-            await embededmessages(message, "Dar um bote", "Erro", "Não existe sequer uma pessoa com o 'steamid' inserido porra.")
-        else:
-            plate_exists = ""
-            if plate is not None:
-                cursor.execute(
-                    "SELECT plate FROM owned_vehicles WHERE plate = %(plate)s", {'plate': plate})
-                plate_exists = cursor.fetchone()
-            else:
-                while plate_exists is not None:
-                    plate = plate_generator()
-                    cursor.execute(
-                        "SELECT plate FROM owned_vehicles WHERE plate = %(plate)s", {'plate': plate})
-                    plate_exists = cursor.fetchone()
-
-
-            if plate_exists is None:
-
-                sql.insert_data(
-                    "INSERT INTO owned_vehicles (identifier, plate, vehicleprops) VALUES(%(identifier)s, %(plate)s, %(vehicleprops)s);",
-                    {'identifier': steamid, 'plate': plate, 'vehicleprops': vehicleprops}
-                )
-
-                playername = player_data[1]
-                await embededmessages(message, "Dar um bote", "Sucesso", "O tal '" + carname + "' de matrícula '" + plate + "' foi dado ao jogador " + playername + ", ok?")
-            else:
-                await embededmessages(message, "Dar um bote", "Erro", "A matrícula '" + plate + "' já existe, logo não dá, né.")
-
-        sql.close_connection()
-
-def plate_generator():
-    plate = ""
-    i = 1
-
-    while i <= 8:
-        if i == 3 or i == 4 or i == 5:
-            plate +=  random.choice(string.ascii_uppercase)
-        else:
-            plate += str(random.randint(0, 9))
-
-        i += 1
-
-    return plate
-
-async def embededmessages(message, action, state, description):
-    # Prepare discord embeded message
-    embed = discord.Embed(title="Bertram - O Mordomo")
-
-    if state == "Sucesso":
-        embed.color = discord.Color.green()
-    elif state == "Erro":
-        embed.color = discord.Color.red()
-
-    embed.set_thumbnail(
-        url="https://static.wikia.nocookie.net/disneyjessieseries/images/3/3e/J110.jpg/revision/latest/scale-to-width-down/286?cb=20120324031248")
-    embed.add_field(name="Pedido feito por", value=message.author.name +
-                    "#" + message.author.discriminator, inline=False)
-    embed.add_field(name="Ação", value=action, inline=True)
-    embed.add_field(name="Estado", value=state, inline=True)
-    embed.add_field(name="Mensagem", value=description, inline=False)
-    embed.set_footer(text="Powered by Bertram - 2021")
-
-    await message.channel.send(embed=embed)
-
-client.run(secretdata['token'])
+client.run(json_files.get_field('token'))
