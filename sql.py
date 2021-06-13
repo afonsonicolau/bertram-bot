@@ -1,15 +1,12 @@
-import json
+import json_files
 import mysql.connector
 
-# Load JSON Secrets
-secrets = open('secrets.json')
-secretdata = json.load(secrets)
-
-connection = mysql.connector.MySQLConnection(host=secretdata['bertramcredentials']['host'],
-                                     database=secretdata['bertramcredentials']['database'],
-                                     user=secretdata['bertramcredentials']['user'],
-                                     password=secretdata['bertramcredentials']['password'])
+connection = mysql.connector.MySQLConnection(host=json_files.get_field('projects.tnlrp.dbcredentials.host'),
+                                             database=json_files.get_field('projects.tnlrp.dbcredentials.database'),
+                                             user=json_files.get_field('projects.tnlrp.dbcredentials.user'),
+                                             password=json_files.get_field('projects.tnlrp.dbcredentials.password'))
 cursor = connection.cursor()
+
 
 def open_connection():
     try:
@@ -26,6 +23,8 @@ def connect_cursor():
         return cursor
 
 # Function that inserts data into said table
+
+
 def insert_data(insert_query, data):
     try:
         # Executing the SQL command
@@ -37,6 +36,7 @@ def insert_data(insert_query, data):
     except:
         # Roll back in case of error
         connection.rollback()
+
 
 def close_connection():
     if connection.is_connected():
