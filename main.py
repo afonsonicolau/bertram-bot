@@ -40,35 +40,31 @@ async def on_message(message):
 
     if message.content.startswith('<@!852648286602919964>'):
         usermessage = message.content
-        messagesplited = usermessage.split()
+        messagesplitted = usermessage.split()
 
-        # Verify if array has enough indexes
-        if len(messagesplited) == 4:
-            checkmodel = False
-            botcommand = messagesplited[1]
-            steamid = messagesplited[2]
-            carmodel = messagesplited[3]
-            carname = ""
+        botcommand = ''
+        botcommand = messagesplitted[1] if 0 <= 1 < len(messagesplitted) else 'invalid'
 
+        if botcommand == 'darbote' and len(messagesplitted) >= 4:
+            steamid = messagesplitted[2]
+            plate = messagesplitted[4] if 0 <= 4 < len(messagesplitted) else None
+            carmodel = None
             models = sheet.col_values(4)
             for model in models:
-                if model == carmodel:
-                    checkmodel = True
-                    carname = ""
-                    sheet.find(carmodel)
-                    print(sheet)
+                if model == messagesplitted[3]:
+                    carmodel = sheet.find(messagesplitted[3])
+                    carname = sheet.cell(carmodel.row, 2).value
+                    vehicleprops = sheet.cell(carmodel.row, 6).value
                     break
 
-            if re.search('[1-5]:([\a-zA-Z\][0-9]{15})$', steamid) and checkmodel:
-                if botcommand == "darbote":
-                    await givecar(steamid, carmodel, carname, message)
+            if re.search('[1-5]:([\a-zA-Z\][0-9]{15})$', steamid) and carmodel is not None:
+                await givecar(steamid, carmodel.value, carname, plate, vehicleprops, message)
             else:
                 await embededmessages(message, "Dar um veículo", "Erro", "O 'steamid' ou o 'veículo' não estão corretos, aprende a escrever.")
-        else:
-            await embededmessages(message, "Nenhuma", "Erro", "O formato da mensagem deverá ser: @Bertram <ação> <steamid> <objeto/veículo>")
-            return
+        elif botcommand == 'invalid':
+            await embededmessages(message, "Inválida", "Erro", "Acho que se escreveres algo válido funciona.")
 
-async def givecar(steamid, carmodel, carname, message):
+async def givecar(steamid, carmodel, carname, plate, vehicleprops, message):
     # Verify in database first if steamid is valid.
     connection.connect()
     if connection.is_connected():
@@ -78,8 +74,11 @@ async def givecar(steamid, carmodel, carname, message):
         if record == None:
             await embededmessages(message, "Dar um bote", "Erro", "Não existe sequer uma pessoa com o 'steamid' inserido porra.")
         else:
+            if plate is None:
+                plate = "69AIB696"
+
             playername = record[1]
-            await embededmessages(message, "Dar um bote", "Sucesso", "O tal '" + carmodel + "' foi dado ao " + playername + ", ok?")
+            await embededmessages(message, "Dar um bote", "Sucesso", "O tal '" + carname + "' de matrícula '" + plate + "' foi dado ao " + playername + ", ok?")
 
         connection.close()
 
