@@ -34,7 +34,6 @@ async def on_message(message):
         return
 
     if message.content.startswith('<@!852648286602919964>') or message.content.startswith('<@852648286602919964>'):
-
         user_message = message.content
         message_splitted = user_message.split()
         is_manager = message.author.id in json_files.get_field('projects.tnlrp.managers')
@@ -54,7 +53,7 @@ async def on_message(message):
                     break
 
             if re.search('[1-5]:([\a-zA-Z\][0-9]{15})$', identifier) and car_model is not None:
-                await vehicles.givecar(identifier, car_model.value, car_name, plate, vehicle_props, message)
+                await vehicles.givecar(identifier, car_name, plate, vehicle_props, message)
             else:
                 await messages.embededmessages(message, "Dar um veículo", "Erro", "O 'identificador' ou o 'veículo' não estão corretos, aprende a escrever.")
         elif bot_command == 'invalid':
