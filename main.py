@@ -6,6 +6,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import messages
 import vehicles
 import json_files
+import player_characters
 
 # Spreadsheet scope and sheet
 scope = ['https://spreadsheets.google.com/feeds',
@@ -47,7 +48,7 @@ async def on_message(message):
             plate = message_splitted[4] if 4 < len(message_splitted) else None
             special_characters = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
             if plate is not None and (len(plate) > 8 or special_characters.search(plate) is not None):
-                await messages.embeded_messages(message, "Dar um veículo", "Erro", "A 'matrícula' inserida está um pouco inválida, só um pouco.")
+                await messages.embeded_messages(message, "Dar um veículo", "Erro", "A 'matrícula' só pode ter 8 caracteres e não pode ter símbolos, duh.")
                 return
 
             # Parse model inputed to get it's name and props
@@ -64,6 +65,13 @@ async def on_message(message):
                 await vehicles.givecar(identifier, car_name, plate, vehicle_props, message)
             else:
                 await messages.embeded_messages(message, "Dar um veículo", "Erro", "O 'identificador' ou o 'veículo' não estão corretos, aprende a escrever.")
+        elif bot_command == 'procurapersones' and len(message_splitted) == 3 and is_manager:
+            steamid = message_splitted[2]
+
+            if re.search('([\a-zA-Z\][0-9]{15})$', steamid):
+                await player_characters.get_character(steamid, message)
+            else:
+                await messages.embeded_messages(message, "Procurar personagens", "Erro", "O 'steamid' inserido é inválido.")
         elif bot_command == 'invalid':
             await messages.embeded_messages(message, "Inválida", "Erro", "Acho que se escreveres algo válido funciona.")
 
