@@ -25,10 +25,10 @@ def connect_cursor():
 # Function that inserts data into said table
 
 
-def insert_data(insert_query, data):
+def insert_data(query, data):
     try:
         # Executing the SQL command
-        cursor.execute(insert_query, data)
+        cursor.execute(query, data)
 
         # Commit your changes in the database
         connection.commit()
