@@ -11,10 +11,10 @@ async def embeded_messages(message, action, state, description):
 
     if state == "Sucesso":
         embed.color = discord.Color.green()
-        await add_emoji(message, '✅')
+        await add_emoji(message, 'success')
     elif state == "Erro":
         embed.color = discord.Color.red()
-        await add_emoji(message, '❌')
+        await add_emoji(message, 'error')
 
     embed.set_thumbnail(url="https://static.wikia.nocookie.net/disneyjessieseries/images/3/3e/J110.jpg/revision/latest/scale-to-width-down/286?cb=20120324031248")
     embed.add_field(name="Pedido feito por", value=message.author.name + "#" + message.author.discriminator, inline=False)

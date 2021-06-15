@@ -25,15 +25,18 @@ def connect_cursor():
 # Function that inserts data into said table
 
 
-def insert_data(query, data):
+def run_query(query, data):
     try:
+        print(query)
+        print(data)
         # Executing the SQL command
         cursor.execute(query, data)
 
         # Commit your changes in the database
         connection.commit()
 
-    except:
+    except mysql.connector.Error as e:
+        print(e)
         # Roll back in case of error
         connection.rollback()
 
