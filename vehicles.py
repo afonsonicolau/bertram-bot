@@ -43,7 +43,7 @@ async def givecar(identifier, car_name, plate, vehicle_props, message):
                 jsoned_vehicle_props['plate'] = plate
                 altered_vehicle_props = json.dumps(jsoned_vehicle_props)
 
-                sql.insert_data(
+                sql.run_query(
                     "INSERT INTO owned_vehicles (identifier, plate, vehicleprops) VALUES(%(identifier)s, %(plate)s, %(vehicleprops)s);",
                     {'identifier': identifier, 'plate': plate,'vehicleprops': altered_vehicle_props}
                 )
@@ -63,7 +63,9 @@ async def changegarage(plate, garage, message):
         plate_exists = cursor.fetchone()
 
         if plate_exists is not None:
-            sql.insert_data("UPDATE owned_vehicels SET state = 2 AND garage = %(garage)s", {'garage': garage})
+            sql.run_query("UPDATE owned_vehicles SET state = '2', garage = %(garage)s WHERE plate = %(plate)s;", {
+                            'garage': garage, 'plate': plate}
+                         )
             await messages.embeded_messages(message, "Mudar garagem de um veículo", "Sucesso", "O veículo de matrícula '" + plate + "' está agora na garagem '" + garage + "'.")
         else:
             await messages.embeded_messages(message, "Mudar garagem de um veículo", "Erro", "A matrícula '" + plate + "' nem sequer existe.")
