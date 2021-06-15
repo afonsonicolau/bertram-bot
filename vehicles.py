@@ -23,8 +23,7 @@ def plate_generator():
 async def givecar(identifier, car_name, plate, vehicle_props, message):
     if sql.open_connection():
         cursor = sql.connect_cursor()
-        cursor.execute(
-            "SELECT * FROM users WHERE identifier = %(identifier)s", {'identifier': identifier})
+        cursor.execute("SELECT * FROM users WHERE identifier = %(identifier)s", {'identifier': identifier})
         player_data = cursor.fetchone()
 
         if player_data == None:
@@ -32,15 +31,12 @@ async def givecar(identifier, car_name, plate, vehicle_props, message):
         else:
             plate_exists = ""
             if plate is not None:
-                cursor.execute(
-                    "SELECT plate FROM owned_vehicles WHERE plate = %(plate)s", {'plate': plate})
+                cursor.execute("SELECT plate FROM owned_vehicles WHERE plate = %(plate)s", {'plate': plate})
                 plate_exists = cursor.fetchone()
             else:
                 while plate_exists is not None:
                     plate = plate_generator()
-                    cursor.execute(
-                        "SELECT plate FROM owned_vehicles WHERE plate = %(plate)s", {'plate': plate})
-                    plate_exists = cursor.fetchone()
+
 
             if plate_exists is None:
                 jsoned_vehicle_props = json.loads(vehicle_props)
@@ -49,7 +45,7 @@ async def givecar(identifier, car_name, plate, vehicle_props, message):
 
                 sql.insert_data(
                     "INSERT INTO owned_vehicles (identifier, plate, vehicleprops) VALUES(%(identifier)s, %(plate)s, %(vehicleprops)s);",
-                    {'identifier': identifier, 'plate': plate, 'vehicleprops': altered_vehicle_props}
+                    {'identifier': identifier, 'plate': plate,'vehicleprops': altered_vehicle_props}
                 )
 
                 playername = player_data[1]
@@ -58,3 +54,16 @@ async def givecar(identifier, car_name, plate, vehicle_props, message):
                 await messages.embeded_messages(message, "Dar um bote", "Erro", "A matrícula '" + plate + "' já existe, logo não dá, né.")
 
         sql.close_connection()
+
+
+async def changegarage(plate, garage, message):
+    if sql.open_connection():
+        cursor = sql.connect_cursor()
+        cursor.execute("SELECT plate FROM owned_vehicles WHERE plate = %(plate)s", {'plate': plate})
+        plate_exists = cursor.fetchone()
+
+        if plate_exists is not None:
+            sql.insert_data("UPDATE owned_vehicels SET state = 2 AND garage = %(garage)s", {'garage': garage})
+            await messages.embeded_messages(message, "Mudar garagem de um veículo", "Sucesso", "O veículo de matrícula '" + plate + "' está agora na garagem '" + garage + "'.")
+        else:
+            await messages.embeded_messages(message, "Mudar garagem de um veículo", "Erro", "A matrícula '" + plate + "' nem sequer existe.")

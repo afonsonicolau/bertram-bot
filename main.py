@@ -41,6 +41,7 @@ async def on_message(message):
 
         bot_command = message_splitted[1] if 1 < len(message_splitted) else 'invalid'
 
+        # Give a car to a character
         if bot_command == 'darbote' and len(message_splitted) >= 4 and is_manager:
             identifier = message_splitted[2]
 
@@ -65,15 +66,33 @@ async def on_message(message):
                 await vehicles.givecar(identifier, car_name, plate, vehicle_props, message)
             else:
                 await messages.embeded_messages(message, "Dar um veículo", "Erro", "O 'identificador' ou o 'veículo' não estão corretos, aprende a escrever.")
-        elif bot_command == 'procurapersones' and len(message_splitted) == 3 and is_manager:
+        # Get player characters
+        elif bot_command == 'personagens' and len(message_splitted) == 3 and is_manager:
             steamid = message_splitted[2]
 
             if re.search('([\a-zA-Z\][0-9]{15})$', steamid):
                 await player_characters.get_character(steamid, message)
             else:
-                await messages.embeded_messages(message, "Procurar personagens", "Erro", "O 'steamid' inserido é inválido.")
-        elif bot_command == 'invalid':
-            await messages.embeded_messages(message, "Inválida", "Erro", "Acho que se escreveres algo válido funciona.")
+                await messages.embeded_messages(message, "Personagens de um jogador", "Erro", "O 'steamid' inserido é inválido.")
+        # Change vehicle's garage
+        elif bot_command == 'mudargaragem' and len(message_splitted) >= 3 and is_manager:
+            plate = message_splitted[2]
+            garage = message_splitted[3] if 3 < len(message_splitted) else None
+            possible_garages = ['A', 'B', 'C', 'D', 'E']
+
+            # Garage parsing
+            if garage is None:
+                garage = 'A'
+            elif garage is not None and garage not in possible_garages:
+                await messages.embeded_messages(message, "Mudar garagem de um veículo", "Erro", "A garagem '" + garage + "' não existe, obviamente.")
+                return
+
+            if re.search('([0-9]){2}([A-Z]){3}([0-9]){3}$', plate):
+                await vehicles.changegarage(plate, garage, message)
+            else:
+                await messages.embeded_messages(message, "Mudar garagem de um veículo", "Erro", "A 'matrícula' inserida não é válida.")
+        else:
+            await messages.add_emoji(message, 'thinking')
 
 
 client.run(json_files.get_field('token'))
