@@ -36,7 +36,8 @@ async def givecar(identifier, car_name, plate, vehicle_props, message):
             else:
                 while plate_exists is not None:
                     plate = plate_generator()
-
+                    cursor.execute("SELECT plate FROM owned_vehicles WHERE plate = %(plate)s", {'plate': plate})
+                    plate_exists = cursor.fetchone()
 
             if plate_exists is None:
                 jsoned_vehicle_props = json.loads(vehicle_props)
@@ -69,3 +70,19 @@ async def changegarage(plate, garage, message):
             await messages.embeded_messages(message, "Mudar garagem de um veículo", "Sucesso", "O veículo de matrícula '" + plate + "' está agora na garagem '" + garage + "'.")
         else:
             await messages.embeded_messages(message, "Mudar garagem de um veículo", "Erro", "A matrícula '" + plate + "' nem sequer existe.")
+
+
+async def deletevehicle(plate, message):
+    if sql.open_connection():
+        cursor = sql.connect_cursor()
+        cursor.execute("SELECT plate, is_deleted FROM owned_vehicles WHERE plate = %(plate)s", {'plate': plate})
+        plate_exists = cursor.fetchone()
+
+        if plate_exists is not None:
+            if plate_exists[1] is None:
+                sql.run_query("UPDATE owned_vehicles SET is_deleted = NOW() WHERE plate = %(plate)s;", {'plate': plate})
+                await messages.embeded_messages(message, "Remover veículo", "Sucesso", "O veículo de matrícula '" + plate + "' foi removido, até à próxima.")
+            else:
+                await messages.embeded_messages(message, "Remover veículo", "Erro", "Este veículo meio que já foi removido, digo eu.")
+        else:
+            await messages.embeded_messages(message, "Remover veículo", "Erro", "A matrícula '" + plate + "' não existe não.")

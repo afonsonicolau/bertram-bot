@@ -40,6 +40,7 @@ async def on_message(message):
         is_manager = message.author.id in json_files.get_field('projects.tnlrp.managers')
 
         bot_command = message_splitted[1] if 1 < len(message_splitted) else 'invalid'
+        special_characters = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
 
         # Give a car to a character
         if bot_command == 'darbote' and len(message_splitted) >= 4 and is_manager:
@@ -47,7 +48,6 @@ async def on_message(message):
 
             # Parse plate in case one was inputed
             plate = message_splitted[4] if 4 < len(message_splitted) else None
-            special_characters = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
             if plate is not None and (len(plate) > 8 or special_characters.search(plate) is not None):
                 await messages.embeded_messages(message, "Dar um veículo", "Erro", "A 'matrícula' só pode ter 8 caracteres e não pode ter símbolos, duh.")
                 return
@@ -87,8 +87,16 @@ async def on_message(message):
                 await messages.embeded_messages(message, "Mudar garagem de um veículo", "Erro", "A garagem '" + garage + "' não existe, obviamente.")
                 return
 
-            if re.search('([0-9]){2}([A-Z]){3}([0-9]){3}$', plate):
+            if len(plate) <= 8 and special_characters.search(plate) is None:
                 await vehicles.changegarage(plate, garage, message)
+            else:
+                await messages.embeded_messages(message, "Mudar garagem de um veículo", "Erro", "A 'matrícula' inserida não é válida.")
+        # Change vehicle 'is_deleted' field to 'now' timestamp
+        elif bot_command == 'xaubote' and len(message_splitted) == 3 and is_manager:
+            plate = message_splitted[2]
+
+            if len(plate) <= 8 and special_characters.search(plate) is None:
+                await vehicles.deletevehicle(plate, message)
             else:
                 await messages.embeded_messages(message, "Mudar garagem de um veículo", "Erro", "A 'matrícula' inserida não é válida.")
         else:

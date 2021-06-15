@@ -27,8 +27,6 @@ def connect_cursor():
 
 def run_query(query, data):
     try:
-        print(query)
-        print(data)
         # Executing the SQL command
         cursor.execute(query, data)
 
