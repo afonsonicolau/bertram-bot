@@ -19,7 +19,7 @@ def open_connection():
 
 def connect_cursor():
     if connection.is_connected():
-        cursor = connection.cursor()
+        cursor = connection.cursor(buffered=True)
         return cursor
 
 # Function that inserts data into said table
