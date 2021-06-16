@@ -62,11 +62,11 @@ async def on_message(message):
                     vehicle_props = sheet.cell(car_model.row, 6).value
                     break
 
-            if re.search('[1-5]:([\a-zA-Z\][0-9]{15})$', identifier) and car_model is not None:
+            if re.search('^[1-5]{1}:([\a-zA-Z\][0-9]{15})$', identifier) and car_model is not None:
                 await vehicles.givecar(identifier, car_name, plate, vehicle_props, message)
             else:
                 await messages.embeded_messages(message, "Dar um veículo", "Erro", "O 'identificador' ou o 'veículo' não estão corretos, aprende a escrever.")
-        # Get player characters
+        # Get player characters/
         elif bot_command == 'personagens' and len(message_splitted) == 3 and is_manager:
             steamid = message_splitted[2]
 
@@ -99,6 +99,18 @@ async def on_message(message):
                 await vehicles.deletevehicle(plate, message)
             else:
                 await messages.embeded_messages(message, "Mudar garagem de um veículo", "Erro", "A 'matrícula' inserida não é válida.")
+        #Add player to multichar/Remove multichar from player
+        elif bot_command == 'multichar' and len(message_splitted) == 4 and is_manager:
+            action = message_splitted[2]
+            steamid = message_splitted[3]
+
+            if re.search('^([\a-zA-Z\][0-9]{15})$', steamid):
+                if action == 'dar' or action == 'tirar':
+                    await player_characters.manage_multichar(steamid, action, message)
+                else:
+                    await messages.embeded_messages(message, "Multichar", "Erro", "Ação inválida, só podes 'dar' ou 'tirar.")
+            else:
+                await messages.embeded_messages(message, "Multichar", "Erro", "O 'steamid' não é válido não.")
         else:
             await messages.add_emoji(message, 'thinking')
 
