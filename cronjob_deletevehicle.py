@@ -14,7 +14,7 @@ def check_timestamp():
         cursor.execute("SELECT plate FROM owned_vehicles WHERE is_deleted IS NOT NULL AND DATEDIFF(DATE(NOW()), DATE(is_deleted)) >= 30")
         vehicles = cursor.fetchall()
 
-        log_file = open("/tmp/cronjob_logs.txt", "a")
+        log_file = open("cronjob_logs.txt", "a")
         vehicle_plates = [plate[0] for plate in vehicles]
 
         if len(vehicles) > 0:
