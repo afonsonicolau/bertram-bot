@@ -19,8 +19,30 @@ def plate_generator():
 
     return plate
 
+async def get_vehicles(identifier, character_name, message):
+    if sql.open_connection:
+        cursor = sql.connect_cursor()
+        cursor.execute("SELECT identifier, name FROM users WHERE identifier = %(identifier)s OR name LIKE %(name)s", {'identifier': identifier, 'name': character_name})
+        parsed_identifier = cursor.fetchone()
 
-async def givecar(identifier, car_name, plate, vehicle_props, message):
+        if parsed_identifier is not None:
+            cursor.execute("SELECT plate, garage FROM owned_vehicles WHERE identifier = %(identifier)s", {'identifier': parsed_identifier[0]})
+            vehicle_data = cursor.fetchall()
+
+            if len(vehicle_data) > 0:
+                vehicles_info = ""
+
+                for data in vehicle_data:
+                    vehicles_info += "\nMatrícula - " + data[0] + ' | Garagem - ' + data[1]
+
+                await messages.embeded_messages(message, "Veículos de um personagem", "Sucesso", "Os seguintes veículos de '" + parsed_identifier[1] + "' foram encontrados: \n" + vehicles_info)
+            else:
+                await messages.embeded_messages(message, "Veículos de um personagem", "Erro", "O personagem '" + parsed_identifier[1] + "' não tem qualquer veículo.")
+        else:
+            await messages.embeded_messages(message, "Veículos de um personagem", "Erro", "Não foi possível encontrar qualquer personagem.")
+
+
+async def give_car(identifier, car_name, plate, vehicle_props, message):
     if sql.open_connection():
         cursor = sql.connect_cursor()
         cursor.execute("SELECT * FROM users WHERE identifier = %(identifier)s", {'identifier': identifier})
@@ -57,7 +79,7 @@ async def givecar(identifier, car_name, plate, vehicle_props, message):
         sql.close_connection()
 
 
-async def changegarage(plate, garage, message):
+async def change_garage(plate, garage, message):
     if sql.open_connection():
         cursor = sql.connect_cursor()
         cursor.execute("SELECT plate FROM owned_vehicles WHERE plate = %(plate)s", {'plate': plate})
@@ -72,7 +94,7 @@ async def changegarage(plate, garage, message):
             await messages.embeded_messages(message, "Mudar garagem de um veículo", "Erro", "A matrícula '" + plate + "' nem sequer existe.")
 
 
-async def deletevehicle(plate, message):
+async def delete_vehicle(plate, message):
     if sql.open_connection():
         cursor = sql.connect_cursor()
         cursor.execute("SELECT plate, is_deleted FROM owned_vehicles WHERE plate = %(plate)s", {'plate': plate})

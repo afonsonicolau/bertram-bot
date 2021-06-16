@@ -63,17 +63,9 @@ async def on_message(message):
                     break
 
             if re.search('^[1-5]{1}:([\a-zA-Z\][0-9]{15})$', identifier) and car_model is not None:
-                await vehicles.givecar(identifier, car_name, plate, vehicle_props, message)
+                await vehicles.give_car(identifier, car_name, plate, vehicle_props, message)
             else:
                 await messages.embeded_messages(message, "Dar um veículo", "Erro", "O 'identificador' ou o 'veículo' não estão corretos, aprende a escrever.")
-        # Get player characters/
-        elif bot_command == 'personagens' and len(message_splitted) == 3 and is_manager:
-            steamid = message_splitted[2]
-
-            if re.search('([\a-zA-Z\][0-9]{15})$', steamid):
-                await player_characters.get_character(steamid, message)
-            else:
-                await messages.embeded_messages(message, "Personagens de um jogador", "Erro", "O 'steamid' inserido é inválido.")
         # Change vehicle's garage
         elif bot_command == 'mudargaragem' and len(message_splitted) >= 3 and is_manager:
             plate = message_splitted[2]
@@ -88,18 +80,44 @@ async def on_message(message):
                 return
 
             if len(plate) <= 8 and special_characters.search(plate) is None:
-                await vehicles.changegarage(plate, garage, message)
+                await vehicles.change_garage(plate, garage, message)
             else:
                 await messages.embeded_messages(message, "Mudar garagem de um veículo", "Erro", "A 'matrícula' inserida não é válida.")
+        # Get character vehicle's
+        elif bot_command == 'carrinhosdo' and len(message_splitted) >= 3 and is_manager:
+            steamid = ""
+            name = ""
+
+            if re.search('^[1-5]{1}:([\a-zA-Z\][0-9]{15})$', message_splitted[2]):
+                steamid = message_splitted[2]
+            else:
+                name += '%'
+                i = 2
+
+                while i < len(message_splitted):
+                    name += message_splitted[i] + " "
+                    i += 1
+
+                name += '%'
+
+            await vehicles.get_vehicles(steamid, name, message)
         # Change vehicle 'is_deleted' field to 'now' timestamp
         elif bot_command == 'xaubote' and len(message_splitted) == 3 and is_manager:
             plate = message_splitted[2]
 
             if len(plate) <= 8 and special_characters.search(plate) is None:
-                await vehicles.deletevehicle(plate, message)
+                await vehicles.delete_vehicle(plate, message)
             else:
                 await messages.embeded_messages(message, "Mudar garagem de um veículo", "Erro", "A 'matrícula' inserida não é válida.")
-        #Add player to multichar/Remove multichar from player
+        # Get player characters
+        elif bot_command == 'personagens' and len(message_splitted) == 3 and is_manager:
+            steamid = message_splitted[2]
+
+            if re.search('([\a-zA-Z\][0-9]{15})$', steamid):
+                await player_characters.get_character(steamid, message)
+            else:
+                await messages.embeded_messages(message, "Personagens de um jogador", "Erro", "O 'steamid' inserido é inválido.")
+        # Add player to multichar/Remove multichar from player
         elif bot_command == 'multichar' and len(message_splitted) == 4 and is_manager:
             action = message_splitted[2]
             steamid = message_splitted[3]
