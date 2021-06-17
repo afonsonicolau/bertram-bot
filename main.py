@@ -1,3 +1,4 @@
+from sys import stderr
 import discord
 import re
 import gspread
@@ -7,6 +8,12 @@ import messages
 import vehicles
 import json_files
 import player_characters
+import ssh_connection
+
+# Open and close SSH connection
+ssh_connection.open_connection()
+
+ssh_connection.close_connection()
 
 # Spreadsheet scope and sheet
 scope = ['https://spreadsheets.google.com/feeds',
