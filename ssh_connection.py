@@ -1,5 +1,5 @@
 import json_files
-# SSH
+# SSH library
 import paramiko
 
 ssh_client = paramiko.SSHClient()
