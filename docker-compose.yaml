@@ -1,0 +1,18 @@
+version: "3.3"
+
+services:
+    mysql-service:
+        image: "mysql:5.7"
+        volumes:
+        - ./mysql:/var/lib/mysql
+        environment:
+        - MYSQL_DATABASE=bertram-test
+        - MYSQL_USER=bertram
+        - MYSQL_PASSWORD=rvQWUhd!NW_eYs.4#833
+        ports:
+        - "3306:3306"
+
+    bertram-bot:
+        build: .
+        depends_on:
+            - mysql-service
