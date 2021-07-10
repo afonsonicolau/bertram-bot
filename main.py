@@ -44,7 +44,83 @@ async def on_message(message):
     if message.content.startswith('<@!852648286602919964>') or message.content.startswith('<@852648286602919964>'):
         user_message = message.content
         message_splitted = user_message.split()
-        is_manager = message.author.id in json_files.get_field('projects.tnlrp.managers')
+        bot_command = message_splitted[1] if 1 < len(message_splitted) else 'invalid'
+
+        # Create command, with various options
+        if bot_command == 'criar':
+            bot_action = message_splitted[2]
+
+            if bot_action == 'verificação':
+                emoji = message_splitted[3]
+                role_id = message_splitted[4]
+
+                # Message sent is deleted
+                await message.delete()
+
+                embed = discord.Embed(title="Bertram - O Mordomo")
+                embed.set_thumbnail(url="https://static.wikia.nocookie.net/disneyjessieseries/images/3/3e/J110.jpg/revision/latest/scale-to-width-down/286?cb=20120324031248")
+                embed.color = discord.Color.green()
+                embed.add_field(name="Verificação de Utilizadores", value="Reage ao emoji abaixo para teres acesso ao resto das salas e para verificares a tua conta!", inline=False)
+                embed.set_footer(text="Powered by Bertram - 2021")
+                embed_message = await message.channel.send(embed=embed)
+                await embed_message.add_reaction(emoji)
+
+        # All TNLRP commands related
+        elif message.channel.id in json_files.get_field('projects.tnlrp.authorized_channels'):
+            is_tnlrp_manager = message.author.id in json_files.get_field('projects.tnlrp.managers')
+            special_characters = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
+
+            # Give a car to a character
+            if bot_command == 'darbote' and len(message_splitted) >= 4 and is_tnlrp_manager:
+                identifier = message_splitted[2]
+
+                # Parse plate in case one was inputed
+                plate = message_splitted[4] if 4 < len(message_splitted) else None
+                if plate is not None and (len(plate) > 8 or special_characters.search(plate) is not None):
+                    await messages.embeded_messages(message, "Dar um veículo", "Erro", "A 'matrícula' só pode ter 8 caracteres e não pode ter símbolos, duh.")
+                    return
+
+                # Parse model inputed to get it's name and props
+                car_model = None
+                models = sheet.col_values(4)
+                for model in models:
+                    if model == message_splitted[3]:
+                        car_model = sheet.find(message_splitted[3])
+                        car_name = sheet.cell(car_model.row, 2).value
+                        vehicle_props = sheet.cell(car_model.row, 6).value
+                        break
+
+                if re.search('^[1-5]{1}:([\a-zA-Z\][0-9]{15})$', identifier) and car_model is not None:
+                    await vehicles.give_car(identifier, car_name, plate, vehicle_props, message)
+                else:
+                    await messages.embeded_messages(message, "Dar um veículo", "Erro", "O 'identificador' ou o 'veículo' não estão corretos, aprende a escrever.")
+            # Change vehicle's garage
+            elif bot_command == 'mudargaragem' and len(message_splitted) >= 3 and is_tnlrp_manager:
+                plate = message_splitted[2]
+                garage = message_splitted[3] if 3 < len(message_splitted) else None
+                possible_garages = ['A', 'B', 'C', 'D', 'E']
+
+                # Garage parsing
+                if garage is None:
+                    garage = 'A'
+                elif garage is not None and garage not in possible_garages:
+                    await messages.embeded_messages(message, "Mudar garagem de um veículo", "Erro", "A garagem '" + garage + "' não existe, obviamente.")
+                    return
+
+                if len(plate) <= 8 and special_characters.search(plate) is None:
+                    await vehicles.change_garage(plate, garage, message)
+                else:
+                    await messages.embeded_messages(message, "Mudar garagem de um veículo", "Erro", "A 'matrícula' inserida não é válida.")
+            # Get character vehicle's
+            elif bot_command == 'carrinhosdo' and len(message_splitted) >= 3 and is_tnlrp_manager:
+                steamid = ""
+                name = ""
+
+                if re.search('^[1-5]{1}:([\a-zA-Z\][0-9]{15})$', message_splitted[2]):
+                    steamid = message_splitted[2]
+                else:
+                    name += '%'
+                    i = 2
 
         bot_command = message_splitted[1] if 1 < len(message_splitted) else 'invalid'
         special_characters = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
@@ -138,6 +214,27 @@ async def on_message(message):
                 await messages.embeded_messages(message, "Multichar", "Erro", "O 'steamid' não é válido não.")
         else:
             await messages.add_emoji(message, 'thinking')
+
+
+@client.event
+async def on_reaction_add(reaction, user):
+    emoji = reaction.emoji
+
+    if user.bot:
+        return
+
+    for verification_channels in json_files.get_field('verification_channels'):
+        print(verification_channels)
+
+    """ if emoji == "emoji 1":
+        fixed_channel = bot.get_channel(channel_id)
+        await fixed_channel.send(embed=embed)
+    elif emoji == "emoji 2":
+        #do stuff
+    elif emoji == "emoji 3":
+        #do stuff
+    else:
+        return """
 
 
 client.run(json_files.get_field('token'))
