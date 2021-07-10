@@ -10,3 +10,6 @@ gila_instance.read_config_file()
 def get_field(field):
     key = gila_instance.get(field)
     return key
+
+def create_field(reference, identifier, content)
+    return
