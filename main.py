@@ -19,7 +19,7 @@ import player_characters
 scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
 credentials = ServiceAccountCredentials.from_json_keyfile_dict(
-    json_files.get_field('googlecredentials'), scope)
+    json_files.get_field('secrets', 'googlecredentials'), scope)
 client_sheets = gspread.authorize(credentials)
 sheet = client_sheets.open('Modelos - TNLRP').sheet1
 
@@ -51,6 +51,14 @@ async def on_message(message):
                 emoji = message_splitted[3]
                 role_id = message_splitted[4]
 
+                # Verifies if server already has an authentication
+                for server in json_files.get_field('discord_verification', 'discord_servers'):
+                    for server_data in json_files.get_field('discord_verification', 'discord_servers.' + server):
+                        if message.channel.id in json_files.get_field('discord_verification', 'discord_servers.' + server + ".channel_id"):
+                            return
+
+                #json_files.create_field('discord_verification', server_id, emoji, role_id)
+
                 # Message sent is deleted
                 await message.delete()
 
@@ -62,8 +70,8 @@ async def on_message(message):
                 embed_message = await message.channel.send(embed=embed)
                 await embed_message.add_reaction(emoji)
         # All TNLRP commands related
-        elif message.channel.id in json_files.get_field('projects.tnlrp.authorized_channels'):
-            is_tnlrp_manager = message.author.id in json_files.get_field('projects.tnlrp.managers')
+        elif message.channel.id in json_files.get_field('secrets', 'projects.tnlrp.authorized_channels'):
+            is_tnlrp_manager = message.author.id in json_files.get_field('secrets', 'projects.tnlrp.managers')
 
             special_characters = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
 
@@ -155,8 +163,8 @@ async def on_message(message):
                 else:
                     await messages.embeded_messages(message, "Multichar", "Erro", "O 'steamid' não é válido não.")
         # Cyber bar test
-        elif message.channel.id in json_files.get_field('projects.cyberbar.authorized_channels'):
-            is_cyberbar_manager = message.author.id in json_files.get_field('projects.cyberbar.managers')
+        elif message.channel.id in json_files.get_field('secrets', 'projects.cyberbar.authorized_channels'):
+            is_cyberbar_manager = message.author.id in json_files.get_field('secrets', 'projects.cyberbar.managers')
 
             if bot_command == 'falemcomigo' and is_cyberbar_manager:
                 await messages.embeded_messages(message, "Grande Teste", "Sucesso", "O Bertram tá on. Tipo o Neymar")
@@ -168,16 +176,15 @@ async def on_message(message):
 @client.event
 async def on_reaction_add(reaction, user):
     emoji = reaction.emoji
-    print(reaction.message.guild.id)
 
     if user.bot:
         return
 
-    for verification_channels in json_files.get_field('verification_channels'):
+    for verification_channels in json_files.get_field('discord_verification', 'verification_channels'):
         print(verification_channels)
-        for verification_data in json_files.get_field('verification_channels.' + verification_channels):
+        for verification_data in json_files.get_field('discord_verification', 'verification_channels.' + verification_channels):
             print(verification_data)
-            for verification_data in json_files.get_field('verification_channels.' + verification_channels):
+            for verification_data in json_files.get_field('discord_verification', 'verification_channels.' + verification_channels):
                 print(verification_data)
 
     """ if emoji == "emoji 1":
@@ -191,4 +198,4 @@ async def on_reaction_add(reaction, user):
         return """
 
 
-client.run(json_files.get_field('token'))
+client.run(json_files.get_field('secrets', 'token'))

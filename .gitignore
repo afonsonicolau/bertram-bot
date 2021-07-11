@@ -128,8 +128,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# JSON Secrets
-secrets.json
+# JSON Files
+json_files/
 
 # Misc
 notes
