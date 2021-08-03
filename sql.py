@@ -42,3 +42,4 @@ def run_query(query, data):
 def close_connection():
     if connection.is_connected():
         connection.close()
+        cursor.close()
