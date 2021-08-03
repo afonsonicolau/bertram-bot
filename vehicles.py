@@ -42,13 +42,13 @@ async def get_vehicles(identifier, character_name, message):
         else:
             await messages.embeded_messages(message, "Veículos de um personagem", "Erro", "Não foi possível encontrar qualquer personagem.")
 
-        sql.close_connection()
+        #sql.close_connection()
 
 
 async def give_car(identifier, car_model, car_name, plate, vehicle_props, message):
     if sql.open_connection():
         cursor = sql.connect_cursor()
-        cursor.execute("SELECT * FROM users WHERE identifier = %(identifier)s", {'identifier': identifier})
+        cursor.execute("SELECT firstname, lastname FROM users WHERE identifier = %(identifier)s", {'identifier': identifier})
         player_data = cursor.fetchone()
 
         if player_data == None:
@@ -67,21 +67,21 @@ async def give_car(identifier, car_model, car_name, plate, vehicle_props, messag
             if plate_exists is None:
                 jsoned_vehicle_props = json.loads(vehicle_props)
                 jsoned_vehicle_props['plate'] = plate
-                altered_vehicle_props = json.dumps(jsoned_vehicle_props)
+                jsoned_vehicle_props = json.dumps(jsoned_vehicle_props)
                 date_now = datetime.today().strftime('%Y-%m-%d')
-                health = '[{"value":100,"part":"brakes"},{"value":100,"part":"radiator"},{"value":100,"part":"clutch"},{"value":100,"part":"transmission"},{"value":100,"part":"electronics"},{"value":100,"part":"driveshaft"},{"value":100,"part":"fuelinjector"},{"value":1000,"part":"engine"}]'
+                health = "[{'value':100,'part':'brakes'},{'value':100,'part':'radiator'},{'value':100,'part':'clutch'},{'value':100,'part':'transmission'},{'value':100,'part':'electronics'},{'value':100,'part':'driveshaft'},{'value':100,'part':'fuelinjector'},{'value':1000,'part':'engine'}]"
 
                 sql.run_query(
-                    "INSERT INTO owned_vehicles (owner, plate, vehicle, type, stored, date, paidprice, repaytime, model, health, gotKey, alarm, lockcheck, state, garage, x, y, z, h, vehicle_name, healthPhone) VALUES(%(identifier)s, %(plate)s, %(vehicleprops)s, 'car', 0, " + date_now + ", 0, 0, " + car_model + ", " + health + ", 1, 0, 'nao', 2, 'A', 0, 0, 0, 0, " + car_name+ ", 1000);",
-                    {'identifier': identifier, 'plate': plate,'vehicleprops': altered_vehicle_props}
+                    "INSERT INTO owned_vehicles (owner, plate, vehicle, date, model, gotKey, state, garage, vehicle_name) VALUES(%(owner)s, %(plate)s, %(vehicle)s, %(date_now)s, %(car_model)s, 1, 2, 'A', %(car_name)s);",
+                    {'owner': str(identifier), 'plate': str(plate), 'vehicle': jsoned_vehicle_props, 'car_model': car_model, 'car_name': car_name[1], 'date_now': date_now}
                 )
 
-                playername = player_data[1]
-                await messages.embeded_messages(message, "Dar um bote", "Sucesso", "O tal '" + car_name + "' de matrícula '" + plate + "' foi dado ao jogador '" + playername + "', ok?")
+                playername = player_data[0] + " " + player_data[1]
+                await messages.embeded_messages(message, "Dar um bote", "Sucesso", "O tal '" + car_name[1] + "' de matrícula '" + plate + "' foi dado ao jogador '" + playername + "', ok?")
             else:
                 await messages.embeded_messages(message, "Dar um bote", "Erro", "A matrícula '" + plate + "' já existe, logo não dá, né.")
 
-            sql.close_connection()
+        #sql.close_connection()
 
 
 async def change_garage(plate, garage, message):
