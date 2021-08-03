@@ -22,18 +22,18 @@ def plate_generator():
 async def get_vehicles(identifier, character_name, message):
     if sql.open_connection:
         cursor = sql.connect_cursor()
-        cursor.execute("SELECT identifier, name FROM users WHERE identifier = %(identifier)s OR name LIKE %(name)s", {'identifier': identifier, 'name': character_name})
+        cursor.execute("SELECT identifier FROM users WHERE identifier = %(identifier)s OR firstname LIKE %(name)s", {'identifier': identifier, 'name': character_name})
         parsed_identifier = cursor.fetchone()
 
         if parsed_identifier is not None:
-            cursor.execute("SELECT plate, garage FROM owned_vehicles WHERE owner = %(identifier)s", {'identifier': parsed_identifier[0]})
+            cursor.execute("SELECT plate, garage, vehicle_name FROM owned_vehicles WHERE owner = %(identifier)s", {'identifier': parsed_identifier[0]})
             vehicle_data = cursor.fetchall()
 
             if len(vehicle_data) > 0:
                 vehicles_info = ""
 
                 for data in vehicle_data:
-                    vehicles_info += "\nMatrícula - " + data[0] + ' | Garagem - ' + data[1]
+                    vehicles_info += "\nMatrícula - " + data[0] + ' | Garagem - ' + data[1] + ' | Modelo - ' + data[2]
 
                 await messages.embeded_messages(message, "Veículos de um personagem", "Sucesso", "Os seguintes veículos de '" + parsed_identifier[1] + "' foram encontrados: \n" + vehicles_info)
             else:

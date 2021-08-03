@@ -125,11 +125,12 @@ async def on_message(message):
                     steamid = message_splitted[2]
                 else:
                     name += '%'
-                    i = 2
+                    name += message_splitted[3]
 
-                    while i < len(message_splitted):
+                    """ while i < len(message_splitted):
+
                         name += message_splitted[i] + " "
-                        i += 1
+                        i += 1 """
 
                     name += '%'
 
@@ -163,7 +164,7 @@ async def on_message(message):
                 else:
                     await messages.embeded_messages(message, "Multichar", "Erro", "O 'steamid' não é válido não.")
             elif bot_command == 'ajuda-me' and is_tnlrp_manager:
-                await messages.embeded_messages(message, "Ajuda do Bertram", "Sucesso", "Estou a ver que precisas de uma ajudinha, heis como funciono:\n -> Para me chamares basta fazer **@Bertram <comando> <identificador> (opcionais)**\n - Comandos disponíves:\n  - darbote <identificador> <veículo> (matrícula) \n  - mudargaragem <matrícula> (garagem - padrão A*\n  - carrinhosdo <identificador ou nome>\n  - personagens <steamid>\n  - multichar <dar/tirar> <steamid>\n\n Estes são os comandos que tenho configurados, por enquanto.")
+                await messages.embeded_messages(message, "Ajuda do Bertram", "Sucesso", "Estou a ver que precisas de uma ajudinha, heis como funciono:\n -> Para me chamares basta fazer **@Bertram <comando> <identificador> (opcionais)**\n___Comandos disponíves___:\n  - darbote <identificador> <veículo> (matrícula) \n  - mudargaragem <matrícula> (garagem - padrão A*\n  - carrinhosdo <identificador ou nome>\n  - personagens <steamid>\n  - multichar <dar/tirar> <steamid>\n\n Estes são os comandos que tenho configurados, por enquanto.")
         # Cyber bar test
         elif message.channel.id in json_files.get_field('secrets', 'projects.cyberbar.authorized_channels'):
             is_cyberbar_manager = message.author.id in json_files.get_field('secrets', 'projects.cyberbar.managers')
