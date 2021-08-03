@@ -125,7 +125,7 @@ async def on_message(message):
                     steamid = message_splitted[2]
                 else:
                     name += '%'
-                    name += message_splitted[3]
+                    name += message_splitted[2]
 
                     """ while i < len(message_splitted):
 
