@@ -96,7 +96,7 @@ async def on_message(message):
                         break
 
                 if re.search('^[1-5]{1}:([\a-zA-Z\][0-9]{15})$', identifier) and car_model is not None:
-                    await vehicles.give_car(identifier, car_name, plate, vehicle_props, message)
+                    await vehicles.give_car(identifier, car_model, car_name, plate, vehicle_props, message)
                 else:
                     await messages.embeded_messages(message, "Dar um veículo", "Erro", "O 'identificador' ou o 'veículo' não estão corretos, aprende a escrever.")
             # Change vehicle's garage
