@@ -3,6 +3,7 @@ import random
 import messages
 import sql
 import json
+from datetime import datetime
 
 
 def plate_generator():
@@ -44,7 +45,7 @@ async def get_vehicles(identifier, character_name, message):
         sql.close_connection()
 
 
-async def give_car(identifier, car_name, plate, vehicle_props, message):
+async def give_car(identifier, car_model, car_name, plate, vehicle_props, message):
     if sql.open_connection():
         cursor = sql.connect_cursor()
         cursor.execute("SELECT * FROM users WHERE identifier = %(identifier)s", {'identifier': identifier})
@@ -67,9 +68,11 @@ async def give_car(identifier, car_name, plate, vehicle_props, message):
                 jsoned_vehicle_props = json.loads(vehicle_props)
                 jsoned_vehicle_props['plate'] = plate
                 altered_vehicle_props = json.dumps(jsoned_vehicle_props)
+                date_now = datetime.today().strftime('%Y-%m-%d')
+                health = '[{"value":100,"part":"brakes"},{"value":100,"part":"radiator"},{"value":100,"part":"clutch"},{"value":100,"part":"transmission"},{"value":100,"part":"electronics"},{"value":100,"part":"driveshaft"},{"value":100,"part":"fuelinjector"},{"value":1000,"part":"engine"}]'
 
                 sql.run_query(
-                    "INSERT INTO owned_vehicles (identifier, plate, vehicleprops) VALUES(%(identifier)s, %(plate)s, %(vehicleprops)s);",
+                    "INSERT INTO owned_vehicles (owner, plate, vehicle, type, stored, date, paidprice, repaytime, model, health, gotKey, alarm, lockcheck, state, garage, x, y, z, h, vehicle_name, healthPhone) VALUES(%(identifier)s, %(plate)s, %(vehicleprops)s, 'car', 0, " + date_now + ", 0, 0, " + car_model + ", " + health + ", 1, 0, 'nao', 2, 'A', 0, 0, 0, 0, " + car_name+ ", 1000);",
                     {'identifier': identifier, 'plate': plate,'vehicleprops': altered_vehicle_props}
                 )
 
