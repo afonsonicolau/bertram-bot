@@ -20,9 +20,9 @@ def plate_generator():
     return plate
 
 async def get_vehicles(identifier, character_name, message):
-    if sql.open_connection:
+    if sql.open_connection():
         cursor = sql.connect_cursor()
-        cursor.execute("SELECT identifier FROM users WHERE identifier = %(identifier)s OR firstname LIKE %(name)s", {'identifier': identifier, 'name': character_name})
+        cursor.execute("SELECT identifier, firstname, lastname FROM users WHERE identifier = %(identifier)s OR firstname LIKE %(name)s", {'identifier': identifier, 'name': character_name})
         parsed_identifier = cursor.fetchone()
 
         if parsed_identifier is not None:
@@ -35,11 +35,13 @@ async def get_vehicles(identifier, character_name, message):
                 for data in vehicle_data:
                     vehicles_info += "\nMatrícula - " + data[0] + ' | Garagem - ' + data[1] + ' | Modelo - ' + data[2]
 
-                await messages.embeded_messages(message, "Veículos de um personagem", "Sucesso", "Os seguintes veículos de '" + parsed_identifier[1] + "' foram encontrados: \n" + vehicles_info)
+                await messages.embeded_messages(message, "Veículos de um personagem", "Sucesso", "Os seguintes veículos do '" + parsed_identifier[1] + " " + parsed_identifier[2] + "' foram encontrados: \n" + vehicles_info)
             else:
-                await messages.embeded_messages(message, "Veículos de um personagem", "Erro", "O personagem '" + parsed_identifier[1] + "' não tem qualquer veículo.")
+                await messages.embeded_messages(message, "Veículos de um personagem", "Erro", "O personagem '" + parsed_identifier[1] +  " " + parsed_identifier[2] + "' não tem qualquer veículo.")
         else:
             await messages.embeded_messages(message, "Veículos de um personagem", "Erro", "Não foi possível encontrar qualquer personagem.")
+
+        sql.close_connection()
 
 
 async def give_car(identifier, car_name, plate, vehicle_props, message):
@@ -76,7 +78,7 @@ async def give_car(identifier, car_name, plate, vehicle_props, message):
             else:
                 await messages.embeded_messages(message, "Dar um bote", "Erro", "A matrícula '" + plate + "' já existe, logo não dá, né.")
 
-        sql.close_connection()
+            sql.close_connection()
 
 
 async def change_garage(plate, garage, message):
