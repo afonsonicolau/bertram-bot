@@ -26,7 +26,7 @@ async def get_vehicles(identifier, character_name, message):
         parsed_identifier = cursor.fetchone()
 
         if parsed_identifier is not None:
-            cursor.execute("SELECT plate, garage FROM owned_vehicles WHERE identifier = %(identifier)s", {'identifier': parsed_identifier[0]})
+            cursor.execute("SELECT plate, garage FROM owned_vehicles WHERE owner = %(identifier)s", {'identifier': parsed_identifier[0]})
             vehicle_data = cursor.fetchall()
 
             if len(vehicle_data) > 0:
