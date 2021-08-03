@@ -18,7 +18,7 @@ async def get_character(steamid, message):
         else:
             await messages.embeded_messages(message, "Personagens de um jogador", "Erro", "O 'steamid' inserido não consta em nenhum personagem.")
 
-        sql.close_connection()
+        #sql.close_connection()
 
 async def manage_multichar(steamid, action, message):
     if sql.open_connection():
@@ -46,4 +46,4 @@ async def manage_multichar(steamid, action, message):
             else:
                 await messages.embeded_messages(message, "Retirar do multichar", "Erro", "Este 'steamid' nem está nos 'multichars' quanto mais.")
 
-        sql.close_connection()
+        #sql.close_connection()

@@ -91,12 +91,12 @@ async def on_message(message):
                 for model in models:
                     if model == message_splitted[3]:
                         car_model = sheet.find(message_splitted[3])
-                        car_name = sheet.cell(car_model.row, 2).value
+                        car_name = sheet.row_values(car_model.row)
                         vehicle_props = sheet.cell(car_model.row, 6).value
                         break
 
                 if re.search('^[1-5]{1}:([\a-zA-Z\][0-9]{15})$', identifier) and car_model is not None:
-                    await vehicles.give_car(identifier, car_model, car_name, plate, vehicle_props, message)
+                    await vehicles.give_car(identifier, message_splitted[3], car_name, plate, vehicle_props, message)
                 else:
                     await messages.embeded_messages(message, "Dar um veículo", "Erro", "O 'identificador' ou o 'veículo' não estão corretos, aprende a escrever.")
             # Change vehicle's garage
@@ -164,7 +164,7 @@ async def on_message(message):
                 else:
                     await messages.embeded_messages(message, "Multichar", "Erro", "O 'steamid' não é válido não.")
             elif bot_command == 'ajuda-me' and is_tnlrp_manager:
-                await messages.embeded_messages(message, "Ajuda do Bertram", "Sucesso", "Estou a ver que precisas de uma ajudinha, heis como funciono:\n -> Para me chamares basta fazer **@Bertram <comando> <identificador> (opcionais)**\n___Comandos disponíves___:\n  - darbote <identificador> <veículo> (matrícula) \n  - mudargaragem <matrícula> (garagem - padrão A*\n  - carrinhosdo <identificador ou nome>\n  - personagens <steamid>\n  - multichar <dar/tirar> <steamid>\n\n Estes são os comandos que tenho configurados, por enquanto.")
+                await messages.embeded_messages(message, "Ajuda do Bertram", "Sucesso", "Estou a ver que precisas de uma ajudinha, heis como funciono:\n -> Para me chamares basta fazer **@Bertram <comando> <identificador> (opcionais)**\n___Comandos disponíves___:\n  - darbote <identificador> <veículo> (matrícula) \n  - mudargaragem <matrícula> (garagem - padrão) A*\n  - carrinhos <identificador ou nome>\n  - personagens <steamid>\n\n Estes são os comandos que tenho configurados, por enquanto.")
         # Cyber bar test
         elif message.channel.id in json_files.get_field('secrets', 'projects.cyberbar.authorized_channels'):
             is_cyberbar_manager = message.author.id in json_files.get_field('secrets', 'projects.cyberbar.managers')
