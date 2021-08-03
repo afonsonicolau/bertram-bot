@@ -162,6 +162,8 @@ async def on_message(message):
                         await messages.embeded_messages(message, "Multichar", "Erro", "Ação inválida, só podes 'dar' ou 'tirar.")
                 else:
                     await messages.embeded_messages(message, "Multichar", "Erro", "O 'steamid' não é válido não.")
+            elif bot_command == 'ajuda-me' and is_tnlrp_manager:
+                await messages.embeded_messages(message, "Ajuda do Bertram", "Sucesso", "Estou a ver que precisas de uma ajudinha, heis como funciono:\n - Para me chamares basta fazer @Bertram <comando> <identificador> *opcionais*\n - Comandos disponíves:\n  - darbote <identificador> <veículo> *matrícula* \n  - mudargaragem <matrícula> *garagem (padrão A)*\n  - carrinhosdo <identificador ou nome>\n  - personagens <steamid>\n  - multichar <dar/tirar> <steamid>\n\n Estes são os comandos que tenho configurados, por enquanto.")
         # Cyber bar test
         elif message.channel.id in json_files.get_field('secrets', 'projects.cyberbar.authorized_channels'):
             is_cyberbar_manager = message.author.id in json_files.get_field('secrets', 'projects.cyberbar.managers')
@@ -173,7 +175,7 @@ async def on_message(message):
             await messages.add_emoji(message, 'thinking')
 
 
-@client.event
+""" @client.event
 async def on_reaction_add(reaction, user):
     emoji = reaction.emoji
 
@@ -187,7 +189,7 @@ async def on_reaction_add(reaction, user):
             for verification_data in json_files.get_field('discord_verification', 'verification_channels.' + verification_channels):
                 print(verification_data)
 
-    """ if emoji == "emoji 1":
+    if emoji == "emoji 1":
         fixed_channel = bot.get_channel(channel_id)
         await fixed_channel.send(embed=embed)
     elif emoji == "emoji 2":
