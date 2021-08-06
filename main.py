@@ -8,6 +8,7 @@ import messages
 import vehicles
 import json_files
 import player_characters
+import deployer.deploy_commits as deploy_commit
 # import ssh_connection
 
 # Open and close SSH connection
@@ -39,39 +40,16 @@ async def on_message(message):
         return
 
     if message.content.startswith('<@!852648286602919964>') or message.content.startswith('<@852648286602919964>') or message.content.startswith('<@&862828368411754517>'):
+        await messages.add_emoji(message, 'thinking')
+
         user_message = message.content
         message_splitted = user_message.split()
         bot_command = message_splitted[1] if 1 < len(message_splitted) else 'invalid'
 
-        # Create command, with various options
-        if bot_command == 'criar':
-            bot_action = message_splitted[2]
-
-            if bot_action == 'verificação':
-                emoji = message_splitted[3]
-                role_id = message_splitted[4]
-
-                # Verifies if server already has an authentication
-                for server in json_files.get_field('discord_verification', 'discord_servers'):
-                    for server_data in json_files.get_field('discord_verification', 'discord_servers.' + server):
-                        if message.channel.id in json_files.get_field('discord_verification', 'discord_servers.' + server + ".channel_id"):
-                            return
-
-                #json_files.create_field('discord_verification', server_id, emoji, role_id)
-
-                # Message sent is deleted
-                await message.delete()
-
-                embed = discord.Embed(title="Bertram - O Mordomo")
-                embed.set_thumbnail(url="https://static.wikia.nocookie.net/disneyjessieseries/images/3/3e/J110.jpg/revision/latest/scale-to-width-down/286?cb=20120324031248")
-                embed.color = discord.Color.green()
-                embed.add_field(name="Verificação de Utilizadores", value="Reage ao emoji abaixo para teres acesso ao resto das salas e para verificares a tua conta!", inline=False)
-                embed.set_footer(text="Powered by Bertram - 2021")
-                embed_message = await message.channel.send(embed=embed)
-                await embed_message.add_reaction(emoji)
         # All TNLRP commands related
-        elif message.channel.id in json_files.get_field('secrets', 'projects.tnlrp.authorized_channels'):
+        if message.channel.id in json_files.get_field('secrets', 'projects.tnlrp.authorized_channels'):
             is_tnlrp_manager = message.author.id in json_files.get_field('secrets', 'projects.tnlrp.managers')
+            is_tnlrp_deployer = message.author.id in json_files.get_field('secrets', 'projects.tnlrp.deployers')
 
             special_characters = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
 
@@ -163,42 +141,18 @@ async def on_message(message):
                         await messages.embeded_messages(message, "Multichar", "Erro", "Ação inválida, só podes 'dar' ou 'tirar.")
                 else:
                     await messages.embeded_messages(message, "Multichar", "Erro", "O 'steamid' não é válido não.")
+            elif bot_command == 'deploy' and is_tnlrp_deployer:
+                commit_hash = message_splitted[2]
+                at_symbol = message_splitted[3]
+                project_to_deploy = message_splitted[4]
+
+                await deploy_commit.verify_data(message, commit_hash, at_symbol, project_to_deploy)
+            # Help
             elif bot_command == 'ajuda-me' and is_tnlrp_manager:
                 await messages.embeded_messages(message, "Ajuda do Bertram", "Sucesso", "Estou a ver que precisas de uma ajudinha, heis como funciono:\n -> Para me chamares basta fazer **@Bertram <comando> <identificador> (opcionais)**\n___Comandos disponíves___:\n  - darbote <identificador> <veículo> (matrícula) \n  - mudargaragem <matrícula> (garagem - padrão) A*\n  - carrinhos <identificador ou nome>\n  - personagens <steamid>\n\n Estes são os comandos que tenho configurados, por enquanto.")
-        # Cyber bar test
-        elif message.channel.id in json_files.get_field('secrets', 'projects.cyberbar.authorized_channels'):
-            is_cyberbar_manager = message.author.id in json_files.get_field('secrets', 'projects.cyberbar.managers')
-
-            if bot_command == 'falemcomigo' and is_cyberbar_manager:
-                await messages.embeded_messages(message, "Grande Teste", "Sucesso", "O Bertram tá on. Tipo o Neymar")
-        # In case all others are false
-        else:
-            await messages.add_emoji(message, 'thinking')
-
-
-""" @client.event
-async def on_reaction_add(reaction, user):
-    emoji = reaction.emoji
-
-    if user.bot:
-        return
-
-    for verification_channels in json_files.get_field('discord_verification', 'verification_channels'):
-        print(verification_channels)
-        for verification_data in json_files.get_field('discord_verification', 'verification_channels.' + verification_channels):
-            print(verification_data)
-            for verification_data in json_files.get_field('discord_verification', 'verification_channels.' + verification_channels):
-                print(verification_data)
-
-    if emoji == "emoji 1":
-        fixed_channel = bot.get_channel(channel_id)
-        await fixed_channel.send(embed=embed)
-    elif emoji == "emoji 2":
-        #do stuff
-    elif emoji == "emoji 3":
-        #do stuff
-    else:
-        return """
+            # In case commands are wrong or user doesn't have permissions
+            else:
+                await messages.embeded_messages(message, "Algo errado", "Erro", "Se não deu tens duas opções, ou não sabes usar os meus comandos ou não tens permissões, simples.")
 
 
 client.run(json_files.get_field('secrets', 'token'))
