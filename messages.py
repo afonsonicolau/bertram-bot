@@ -6,6 +6,8 @@ emojis = {'thinking': '🤔',
 
 
 async def embeded_messages(message, action, state, description):
+    # await message.remove_reaction(emojis['thinking'])
+
     # Prepare discord embeded message
     embed = discord.Embed(title="Bertram - O Mordomo")
 
