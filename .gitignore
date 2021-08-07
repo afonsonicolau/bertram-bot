@@ -129,8 +129,7 @@ dmypy.json
 .pyre/
 
 # JSON Files
-json_files/
+jsoner/secrets.json
 
 # Misc
-notes
-cronjob_logs.txt
+text_files/
