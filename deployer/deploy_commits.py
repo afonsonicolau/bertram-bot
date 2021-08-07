@@ -13,10 +13,15 @@ async def verify_data(message, commit_hash, at_symbol, project_to_deploy):
         path_to_deploy = json_files.get_field('projects.' + project_to_deploy + '.path_to_deploy')
         # Go to folder directory
         os.chdir(path_to_deploy)
+        # Pull so commit hashes are retrieved
+        os.system('git fetch')
         # Check if commit hash is valid
-        verify = os.system('git reset --hard ' + commit_hash)
-
+        verify = os.system('git cat-file commit ' + commit_hash)
+        print(verify)
         if verify == 0:
+            # Reset code and pull commit hash
+            os.system('git reset --hard ' + commit_hash)
+
             await messages.embeded_messages(message, "Deploy", "Sucesso", "O commit **" + commit_hash + "** está agora em efeito no projeto " + project_to_deploy.upper() + ".")
         else:
             await messages.embeded_messages(message, "Deploy", "Erro", "O commit **" + commit_hash + "** não é correto de facto.")
