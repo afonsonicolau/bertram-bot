@@ -5,8 +5,8 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 # Other scripts
 import messages
-import vehicles
-import json_files
+import vehicles.vehicles as vehicles
+import jsoner.json_files as json_files
 import player_characters
 import deployer.deploy_commits as deploy_commit
 # import ssh_connection
@@ -20,7 +20,7 @@ import deployer.deploy_commits as deploy_commit
 scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
 credentials = ServiceAccountCredentials.from_json_keyfile_dict(
-    json_files.get_field('secrets', 'googlecredentials'), scope)
+    json_files.get_field('googlecredentials'), scope)
 client_sheets = gspread.authorize(credentials)
 sheet = client_sheets.open('Modelos - TNLRP').sheet1
 
@@ -47,10 +47,9 @@ async def on_message(message):
         bot_command = message_splitted[1] if 1 < len(message_splitted) else 'invalid'
 
         # All TNLRP commands related
-        if message.channel.id in json_files.get_field('secrets', 'projects.tnlrp.authorized_channels'):
-            is_tnlrp_manager = message.author.id in json_files.get_field('secrets', 'projects.tnlrp.managers')
-            is_tnlrp_deployer = message.author.id in json_files.get_field('secrets', 'projects.tnlrp.deployers')
-
+        if message.channel.id in json_files.get_field('projects.tnlrp.authorized_channels'):
+            is_tnlrp_manager = message.author.id in json_files.get_field('projects.tnlrp.managers')
+            is_tnlrp_deployer = message.author.id in json_files.get_field('projects.tnlrp.deployers')
             special_characters = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
 
             # Give a car to a character
@@ -155,4 +154,4 @@ async def on_message(message):
                 await messages.embeded_messages(message, "Algo errado", "Erro", "Se não deu tens duas opções, ou não sabes usar os meus comandos ou não tens permissões, simples.")
 
 
-client.run(json_files.get_field('secrets', 'token'))
+client.run(json_files.get_field('token'))

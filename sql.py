@@ -1,10 +1,10 @@
-import json_files
+import jsoner.json_files as json_files
 import mysql.connector
 
-connection = mysql.connector.MySQLConnection(host=json_files.get_field('secrets', 'projects.tnlrp.dbcredentials.host'),
-                                             database=json_files.get_field('secrets', 'projects.tnlrp.dbcredentials.database'),
-                                             user=json_files.get_field('secrets', 'projects.tnlrp.dbcredentials.user'),
-                                             password=json_files.get_field('secrets', 'projects.tnlrp.dbcredentials.password'))
+connection = mysql.connector.MySQLConnection(host=json_files.get_field('projects.tnlrp.dbcredentials.host'),
+                                             database=json_files.get_field('projects.tnlrp.dbcredentials.database'),
+                                             user=json_files.get_field('projects.tnlrp.dbcredentials.user'),
+                                             password=json_files.get_field('projects.tnlrp.dbcredentials.password'))
 cursor = connection.cursor(dictionary=True)
 
 
