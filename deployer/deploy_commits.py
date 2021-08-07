@@ -17,7 +17,7 @@ async def verify_data(message, commit_hash, at_symbol, project_to_deploy):
         os.system('git fetch')
         # Check if commit hash is valid
         verify = os.system('git cat-file commit ' + commit_hash)
-        print(verify)
+
         if verify == 0:
             # Reset code and pull commit hash
             os.system('git reset --hard ' + commit_hash)
@@ -26,4 +26,4 @@ async def verify_data(message, commit_hash, at_symbol, project_to_deploy):
         else:
             await messages.embeded_messages(message, "Deploy", "Erro", "O commit **" + commit_hash + "** não é correto de facto.")
     else:
-        await messages.embeded_messages(message, "Deploy", "Erro", "O comando de deploy é o seguinte:\n `@Bertram deploy <commit> @ <projeto>`\n\nTenta outra vez e verifica se o projeto é válido:\n-> tnlrp.")
+        await messages.embeded_messages(message, "Deploy", "Erro", "O comando de deploy é o seguinte:\n `@Bertram deploy <commit> @ <projeto>`\n\nTenta outra vez e verifica se o projeto é válido:\n-> tnlrp;\n->tnlrp-testes")
