@@ -77,8 +77,8 @@ async def give_car(identifier, car_model, car_name, plate, vehicle_props, messag
                 health = "[{'value':100,'part':'brakes'},{'value':100,'part':'radiator'},{'value':100,'part':'clutch'},{'value':100,'part':'transmission'},{'value':100,'part':'electronics'},{'value':100,'part':'driveshaft'},{'value':100,'part':'fuelinjector'},{'value':1000,'part':'engine'}]"
 
                 sql.run_query(
-                    "INSERT INTO owned_vehicles (owner, plate, vehicle, date, model, gotKey, state, garage, vehicle_name) VALUES(%(owner)s, %(plate)s, %(vehicle)s, %(date_now)s, %(car_model)s, 1, 2, 'A', %(car_name)s);",
-                    {'owner': str(identifier), 'plate': str(plate), 'vehicle': jsoned_vehicle_props, 'car_model': car_model, 'car_name': car_name[1], 'date_now': date_now}
+                    "INSERT INTO owned_vehicles (owner, plate, vehicle, date, model, gotKey, state, garage, vehicle_name, health, trailerdata) VALUES(%(owner)s, %(plate)s, %(vehicle)s, %(date_now)s, %(car_model)s, 1, 2, 'A', %(car_name)s, %(health)s, 0);",
+                    {'owner': str(identifier), 'plate': str(plate), 'vehicle': jsoned_vehicle_props, 'car_model': car_model, 'car_name': car_name[1], 'date_now': date_now, 'health': health}
                 )
 
                 playername = player_data[0] + " " + player_data[1]
