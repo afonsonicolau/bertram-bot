@@ -3,7 +3,6 @@ import os
 from sys import path
 import jsoner.json_files as json_files
 import messages
-import subprocess
 
 
 async def verify_data(message, commit_hash, at_symbol, project_to_deploy):
