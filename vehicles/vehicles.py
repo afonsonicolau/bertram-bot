@@ -20,10 +20,15 @@ def plate_generator():
 
     return plate
 
-async def get_vehicles(identifier, character_name, message):
+async def get_vehicles(identifier, first_name, last_name, message):
     if sql.open_connection():
         cursor = sql.connect_cursor()
-        cursor.execute("SELECT identifier, firstname, lastname FROM users WHERE identifier = %(identifier)s OR firstname LIKE %(name)s", {'identifier': identifier, 'name': character_name})
+        cursor.execute("SELECT identifier, firstname, lastname FROM users WHERE identifier = %(identifier)s OR firstname LIKE %(first_name)s AND lastname LIKE %(last_name)s", {
+            'identifier': identifier,
+            'first_name': first_name,
+            'last_name': last_name
+            })
+
         parsed_identifier = cursor.fetchone()
 
         if parsed_identifier is not None:
