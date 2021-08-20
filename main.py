@@ -94,7 +94,7 @@ async def on_message(message):
                 else:
                     await messages.embeded_messages(message, "Mudar garagem de um veículo", "Erro", "A 'matrícula' inserida não é válida.")
             # Get character vehicle's
-            elif bot_command == 'carrinhosdo' and len(message_splitted) >= 3 and is_tnlrp_manager:
+            elif bot_command == 'carrinhos' and len(message_splitted) >= 3 and is_tnlrp_manager:
                 steamid = ""
                 name = ""
 
@@ -148,7 +148,7 @@ async def on_message(message):
                 await deploy_commit.verify_data(message, commit_hash, at_symbol, project_to_deploy)
             # Help
             elif bot_command == 'ajuda-me' and is_tnlrp_manager:
-                await messages.embeded_messages(message, "Ajuda do Bertram", "Sucesso", "Estou a ver que precisas de uma ajudinha, heis como funciono:\n -> Para me chamares basta fazer **@Bertram <comando> <identificador> (opcionais)**\n___Comandos disponíves___:\n  - darbote <identificador> <veículo> (matrícula) \n  - mudargaragem <matrícula> (garagem - padrão) A*\n  - carrinhos <identificador ou nome>\n  - personagens <steamid>\n\n Estes são os comandos que tenho configurados, por enquanto.")
+                await messages.embeded_messages(message, "Ajuda do Bertram", "Sucesso", "Estou a ver que precisas de uma ajudinha, heis como funciono:\n -> Para me chamares basta fazer **@Bertram <comando> <identificador> (opcionais)**\n___Comandos disponíves___:\n  - darbote <identificador> <veículo> (matrícula) \n  - mudargaragem <matrícula> (garagem - padrão A) \n  - carrinhos <identificador ou nome>\n  - personagens <steamid>\n\n Estes são os comandos que tenho configurados, por enquanto.")
             # In case commands are wrong or user doesn't have permissions
             else:
                 await messages.embeded_messages(message, "Algo errado", "Erro", "Se não deu tens duas opções, ou não sabes usar os meus comandos ou não tens permissões, simples.")
