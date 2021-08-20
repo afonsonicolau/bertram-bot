@@ -95,23 +95,23 @@ async def on_message(message):
                     await messages.embeded_messages(message, "Mudar garagem de um veículo", "Erro", "A 'matrícula' inserida não é válida.")
             # Get character vehicle's
             elif bot_command == 'carrinhos' and len(message_splitted) >= 3 and is_tnlrp_manager:
-                steamid = ""
-                name = ""
+                steamid, first_name, last_name = ""
 
                 if re.search('^[1-5]{1}:([\a-zA-Z\][0-9]{15})$', message_splitted[2]):
                     steamid = message_splitted[2]
                 else:
-                    name += '%'
-                    name += message_splitted[2]
+                    if message_splitted[2] is None or message_splitted[3] is None:
+                        await messages.embeded_messages(message, "Veículos de um personagem", "Erro", "O nome inserido é muito ambíguo.")
 
-                    """ while i < len(message_splitted):
+                        return
+                    else:
+                        first_name, last_name += '%'
+                        first_name += message_splitted[2]
+                        last_name += message_splitted[3]
 
-                        name += message_splitted[i] + " "
-                        i += 1 """
+                        first_name, last_name += '%'
 
-                    name += '%'
-
-                await vehicles.get_vehicles(steamid, name, message)
+                await vehicles.get_vehicles(steamid, first_name, last_name, message)
             # Change vehicle 'is_deleted' field to 'now' timestamp
             elif bot_command == 'xaubote' and len(message_splitted) == 3 and is_tnlrp_manager:
                 plate = message_splitted[2]
