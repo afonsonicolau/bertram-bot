@@ -95,21 +95,20 @@ async def on_message(message):
                     await messages.embeded_messages(message, "Mudar garagem de um veículo", "Erro", "A 'matrícula' inserida não é válida.")
             # Get character vehicle's
             elif bot_command == 'carrinhos' and len(message_splitted) >= 3 and is_tnlrp_manager:
-                steamid, first_name, last_name = ""
+                steamid = ""
+                first_name = message_splitted[2] if 2 < len(message_splitted) else None
+                last_name = message_splitted[3] if 3 < len(message_splitted) else None
 
                 if re.search('^[1-5]{1}:([\a-zA-Z\][0-9]{15})$', message_splitted[2]):
                     steamid = message_splitted[2]
                 else:
-                    if message_splitted[2] is None or message_splitted[3] is None:
+                    if first_name is None or last_name is None:
                         await messages.embeded_messages(message, "Veículos de um personagem", "Erro", "O nome inserido é muito ambíguo.")
 
                         return
                     else:
-                        first_name, last_name += '%'
-                        first_name += message_splitted[2]
-                        last_name += message_splitted[3]
-
-                        first_name, last_name += '%'
+                        first_name = "%" + first_name + "%"
+                        last_name = "%" + last_name + "%"
 
                 await vehicles.get_vehicles(steamid, first_name, last_name, message)
             # Change vehicle 'is_deleted' field to 'now' timestamp
