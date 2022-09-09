@@ -4,10 +4,10 @@ import re
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 # Other scripts
-import messages
-import vehicles.vehicles as vehicles
+import discord_interactions.messages as messages
+import database_interactions.vehicles as vehicles
 import jsoner.json_files as json_files
-import player_characters
+import database_interactions.player_characters as player_characters
 import deployer.deploy_commits as deploy_commit
 # import ssh_connection
 
@@ -27,12 +27,12 @@ sheet = client_sheets.open('Modelos - TNLRP').sheet1
 # Discord bot client
 client = discord.Client()
 
-# When Bertram starts
+# Log for script start-up
 @client.event
 async def on_ready():
     print('Hello World, I am {0.user}'.format(client))
 
-# When chat has a new message
+# New message on chat event
 @client.event
 async def on_message(message):
     # Verifies if message is from Bertram
