@@ -13,6 +13,6 @@ services:
         - "3306:3306"
 
     bertram-bot:
-        build: .
+        build: ./docker
         depends_on:
             - mysql-service
